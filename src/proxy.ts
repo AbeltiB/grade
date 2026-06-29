@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
 import { SessionData, sessionOptions } from "@/lib/session";
 
-export async function proxy(request: NextRequest) {
+async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (
@@ -26,6 +26,8 @@ export async function proxy(request: NextRequest) {
 
   return NextResponse.next();
 }
+
+export default proxy;
 
 export const config = {
   matcher: ["/dashboard/:path*"],
