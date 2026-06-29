@@ -112,6 +112,15 @@ export function UploadModal({
       setError("Last name is required.");
       return;
     }
+    const phone = form.phone.trim();
+    if (!phone) {
+      setError("Phone number is required.");
+      return;
+    }
+    if (!/^\+?[\d\s\-()]{7,15}$/.test(phone)) {
+      setError("Please enter a valid phone number.");
+      return;
+    }
     if (!form.file) {
       setError("Please select your .zip file.");
       return;
@@ -266,11 +275,13 @@ export function UploadModal({
             </div>
           </div>
 
-          {/* Row 3: Phone (optional) */}
+          {/* Row 3: Phone (required) */}
           <div className="form-field">
             <label className="field-label" htmlFor="phone">
-              Phone Number{" "}
-              <span className="field-optional">(optional)</span>
+              Phone Number <span className="field-required">*</span>{" "}
+              <span className="field-note">
+                (In case your file is corrupted, your upload fails, or the AI pipeline fails to read your data)
+              </span>
             </label>
             <input
               id="phone"

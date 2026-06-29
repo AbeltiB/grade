@@ -443,8 +443,8 @@ a { color: inherit; text-decoration: none; }
   background: var(--color-surface);
   border-radius: var(--radius-modal);
   box-shadow: var(--shadow-modal);
-  width: 100%; max-width: 560px;
-  max-height: 92dvh;
+  width: 100%; max-width: 720px;
+  max-height: 96dvh;
   display: flex; flex-direction: column;
   overflow: hidden;
   animation: modalIn .22s cubic-bezier(.34,1.56,.64,1);
@@ -456,7 +456,7 @@ a { color: inherit; text-decoration: none; }
 
 .modal-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 24px 28px 20px;
+  padding: 20px 28px 16px;
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
@@ -489,13 +489,13 @@ a { color: inherit; text-decoration: none; }
 .modal-close:disabled { opacity: .5; cursor: not-allowed; }
 
 .modal-body {
-  padding: 24px 28px;
+  padding: 20px 28px;
   overflow-y: auto;
   flex: 1;
-  display: flex; flex-direction: column; gap: 16px;
+  display: flex; flex-direction: column; gap: 12px;
 }
 .modal-footer {
-  padding: 18px 28px;
+  padding: 14px 28px;
   border-top: 1px solid var(--color-border);
   display: flex; gap: 12px; justify-content: flex-end;
   flex-shrink: 0;
@@ -518,6 +518,7 @@ a { color: inherit; text-decoration: none; }
 .field-required { color: var(--color-error); }
 .field-optional  { font-weight: 400; color: var(--color-text-faint); }
 .field-hint      { font-size: .72rem; color: var(--color-text-faint); }
+.field-note      { font-weight: 400; color: var(--color-text-faint); font-size: .74rem; }
 
 .field-input {
   background: rgba(255,255,255,.04);
@@ -540,7 +541,7 @@ a { color: inherit; text-decoration: none; }
 .drop-zone {
   border: 2px dashed var(--color-border);
   border-radius: 14px;
-  padding: 28px 20px;
+  padding: 22px 20px;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   transition: border-color .2s ease, background .2s ease;

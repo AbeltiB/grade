@@ -14,8 +14,8 @@ const VALID_ASSIGNMENT_KEYS = new Set<AssignmentKey>([
 // Assignment → allowed instructor mapping (prevents cross-submissions)
 const ASSIGNMENT_INSTRUCTOR_MAP: Record<AssignmentKey, InstructorKey[]> = {
   A1_HTML_CSS:    ["KIBROM", "ZELALEM"],
-  A2_JS:          ["KIBROM"],
-  A2_BOOTSTRAP:   ["ZELALEM"],
+  A2_JS:          ["ZELALEM"],
+  A2_BOOTSTRAP:   ["KIBROM"],
   A3_WEB_PROJECT: ["KIBROM", "ZELALEM"],
 };
 
@@ -60,6 +60,18 @@ export async function POST(req: NextRequest) {
     if (!firstName || !lastName) {
       return NextResponse.json(
         { error: "First and last name are required." },
+        { status: 400 }
+      );
+    }
+    if (!phone) {
+      return NextResponse.json(
+        { error: "Phone number is required." },
+        { status: 400 }
+      );
+    }
+    if (!/^\+?[\d\s\-()]{7,15}$/.test(phone)) {
+      return NextResponse.json(
+        { error: "Invalid phone number." },
         { status: 400 }
       );
     }

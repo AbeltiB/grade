@@ -47,10 +47,10 @@ export const ASSIGNMENTS_BY_INSTRUCTOR: Record<
       description: "Business License project — structure, styling, and layout.",
     },
     {
-      key:         "A2_JS",
+      key:         "A2_BOOTSTRAP",
       number:      2,
-      label:       "JavaScript Essentials",
-      description: "Core JS concepts, DOM manipulation, and event handling.",
+      label:       "Bootstrap Worksheet",
+      description: "Responsive layouts and components using Bootstrap 5.",
     },
     {
       key:         "A3_WEB_PROJECT",
@@ -67,10 +67,10 @@ export const ASSIGNMENTS_BY_INSTRUCTOR: Record<
       description: "Business License project — structure, styling, and layout.",
     },
     {
-      key:         "A2_BOOTSTRAP",
+      key:         "A2_JS",
       number:      2,
-      label:       "Bootstrap Worksheet",
-      description: "Responsive layouts and components using Bootstrap 5.",
+      label:       "JavaScript Essentials",
+      description: "Core JS concepts, DOM manipulation, and event handling.",
     },
     {
       key:         "A3_WEB_PROJECT",

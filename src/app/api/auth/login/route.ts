@@ -12,9 +12,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const dashboardPassword = process.env.DASHBOARD_PASSWORD;
+    // Support either DASHBOARD_PASSWORD or the legacy ADMIN_PASSWORD env var.
+    const dashboardPassword =
+      process.env.DASHBOARD_PASSWORD || process.env.ADMIN_PASSWORD;
     if (!dashboardPassword) {
-      console.error("[auth/login] DASHBOARD_PASSWORD env var not set.");
+      console.error("[auth/login] No dashboard password env var set.");
       return NextResponse.json(
         { error: "Server configuration error." },
         { status: 500 }
