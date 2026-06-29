@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+enum InstructorKey {
+  KIBROM
+  ZELALEM
+}
+
+enum AssignmentKey {
+  A1_HTML_CSS       // Both instructors
+  A2_JS             // Kibrom only  — JavaScript Essentials
+  A2_BOOTSTRAP      // Zelalem only — Bootstrap Worksheet
+  A3_WEB_PROJECT    // Both instructors
+}
+
+model Submission {
+  id            String        @id @default(cuid())
+
+  // Student identity
+  studentId     String        // e.g. JD0006  — stored UPPERCASE, max 6 chars
+  firstName     String
+  lastName      String
+  batch         String        // e.g. DRBSE2502 — stored UPPERCASE, max 10 chars
+  phone         String?
+
+  // Academic context
+  instructorKey InstructorKey
+  assignmentKey AssignmentKey
+
+  // Cloudinary file
+  zipUrl        String        // secure_url from Cloudinary
+  filePublicId  String        // public_id   — for deletion / management
+  fileName      String        // original filename shown in dashboard
+
+  // Audit
+  ipAddress     String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // One submission per student per assignment per instructor
+  @@unique([studentId, instructorKey, assignmentKey])
+  @@index([instructorKey])
+  @@index([assignmentKey])
+  @@index([createdAt])
+}
