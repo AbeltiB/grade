@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ExternalLink, Search, ChevronUp, ChevronDown } from "lucide-react";
+import { ExternalLink, Search, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Submission {
   id:            string;
@@ -29,6 +29,8 @@ const INSTRUCTOR_LABELS: Record<string, string> = {
   KIBROM:  "Dr. Kibrom",
   ZELALEM: "Mr. Zelalem",
 };
+
+const PAGE_SIZE = 25;
 
 type SortKey = "createdAt" | "studentId" | "lastName" | "instructorKey" | "assignmentKey";
 type SortDir = "asc" | "desc";
@@ -61,6 +63,7 @@ export function SubmissionsTable({
   const [filterAsn,   setFilterAsn]   = useState<string>("ALL");
   const [sortKey,     setSortKey]     = useState<SortKey>("createdAt");
   const [sortDir,     setSortDir]     = useState<SortDir>("desc");
+  const [page,        setPage]        = useState(1);
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) {
@@ -69,6 +72,7 @@ export function SubmissionsTable({
       setSortKey(key);
       setSortDir("asc");
     }
+    setPage(1);
   }
 
   const filtered = useMemo(() => {
@@ -107,6 +111,11 @@ export function SubmissionsTable({
     return data;
   }, [submissions, search, filterInstr, filterAsn, sortKey, sortDir]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const startIdx = (safePage - 1) * PAGE_SIZE;
+  const pageRows = filtered.slice(startIdx, startIdx + PAGE_SIZE);
+
   return (
     <div className="table-wrapper">
       {/* Controls */}
@@ -118,7 +127,7 @@ export function SubmissionsTable({
             type="text"
             placeholder="Search by ID, name, or batch…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
 
@@ -126,7 +135,7 @@ export function SubmissionsTable({
           <select
             className="table-filter-select"
             value={filterInstr}
-            onChange={(e) => setFilterInstr(e.target.value)}
+            onChange={(e) => { setFilterInstr(e.target.value); setPage(1); }}
           >
             <option value="ALL">All Instructors</option>
             <option value="KIBROM">Dr. Kibrom</option>
@@ -136,7 +145,7 @@ export function SubmissionsTable({
           <select
             className="table-filter-select"
             value={filterAsn}
-            onChange={(e) => setFilterAsn(e.target.value)}
+            onChange={(e) => { setFilterAsn(e.target.value); setPage(1); }}
           >
             <option value="ALL">All Assignments</option>
             <option value="A1_HTML_CSS">HTML &amp; CSS Basics</option>
@@ -156,6 +165,7 @@ export function SubmissionsTable({
         <table className="sub-table">
           <thead>
             <tr>
+              <th className="th-numeric">#</th>
               <th
                 className="th-sortable"
                 onClick={() => toggleSort("studentId")}
@@ -197,15 +207,16 @@ export function SubmissionsTable({
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 ? (
+            {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={8} className="table-empty">
+                <td colSpan={9} className="table-empty">
                   No submissions found.
                 </td>
               </tr>
             ) : (
-              filtered.map((s) => (
+              pageRows.map((s, idx) => (
                 <tr key={s.id} className="sub-row">
+                  <td className="row-number-cell">{startIdx + idx + 1}</td>
                   <td>
                     <code className="student-id-cell">{s.studentId}</code>
                   </td>
@@ -261,6 +272,34 @@ export function SubmissionsTable({
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {filtered.length > PAGE_SIZE && (
+        <div className="table-pagination">
+          <button
+            className="pagination-btn"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={safePage === 1}
+            aria-label="Previous page"
+          >
+            <ChevronLeft size={16} />
+          </button>
+
+          <span className="pagination-info">
+            Page <strong>{safePage}</strong> of <strong>{totalPages}</strong>
+            {" "}({filtered.length} rows)
+          </span>
+
+          <button
+            className="pagination-btn"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={safePage === totalPages}
+            aria-label="Next page"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
