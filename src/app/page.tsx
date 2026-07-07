@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GraduationCap, FileArchive, ChevronRight, Sparkles } from "lucide-react";
+import { GraduationCap, FileArchive, ChevronRight, Sparkles, RotateCcw } from "lucide-react";
 import { INSTRUCTORS } from "@/lib/config";
 
 export default function HomePage() {
@@ -8,6 +8,15 @@ export default function HomePage() {
       <div className="bg-blob bg-blob--1" aria-hidden="true" />
       <div className="bg-blob bg-blob--2" aria-hidden="true" />
       <div className="bg-blob bg-blob--3" aria-hidden="true" />
+
+      <Link
+        href="/re/students?code=GRADE-RESUBMIT-2025"
+        className="resubmit-corner-btn"
+        aria-label="Resubmit assignment"
+      >
+        <RotateCcw size={16} />
+        Resubmit
+      </Link>
 
       <div className="portal-container">
         {/* Badge */}

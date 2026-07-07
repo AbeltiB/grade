@@ -15,6 +15,7 @@ interface Submission {
   fileName:      string;
   zipUrl:        string;
   ipAddress:     string | null;
+  isResubmit:    boolean;
   createdAt:     string | Date;
 }
 
@@ -58,12 +59,13 @@ export function SubmissionsTable({
 }: {
   submissions: Submission[];
 }) {
-  const [search,      setSearch]      = useState("");
-  const [filterInstr, setFilterInstr] = useState<string>("ALL");
-  const [filterAsn,   setFilterAsn]   = useState<string>("ALL");
-  const [sortKey,     setSortKey]     = useState<SortKey>("createdAt");
-  const [sortDir,     setSortDir]     = useState<SortDir>("desc");
-  const [page,        setPage]        = useState(1);
+  const [search,       setSearch]       = useState("");
+  const [filterInstr,  setFilterInstr]  = useState<string>("ALL");
+  const [filterAsn,    setFilterAsn]    = useState<string>("ALL");
+  const [filterResubmit, setFilterResubmit] = useState<string>("ALL");
+  const [sortKey,      setSortKey]      = useState<SortKey>("createdAt");
+  const [sortDir,      setSortDir]      = useState<SortDir>("desc");
+  const [page,         setPage]         = useState(1);
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) {
@@ -97,6 +99,11 @@ export function SubmissionsTable({
       data = data.filter((s) => s.assignmentKey === filterAsn);
     }
 
+    if (filterResubmit !== "ALL") {
+      const wantResubmit = filterResubmit === "YES";
+      data = data.filter((s) => s.isResubmit === wantResubmit);
+    }
+
     data.sort((a, b) => {
       let va: string | Date = a[sortKey] as string | Date;
       let vb: string | Date = b[sortKey] as string | Date;
@@ -109,7 +116,7 @@ export function SubmissionsTable({
     });
 
     return data;
-  }, [submissions, search, filterInstr, filterAsn, sortKey, sortDir]);
+  }, [submissions, search, filterInstr, filterAsn, filterResubmit, sortKey, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -153,6 +160,16 @@ export function SubmissionsTable({
             <option value="A2_BOOTSTRAP">Bootstrap Worksheet</option>
             <option value="A3_WEB_PROJECT">Web Project</option>
           </select>
+
+          <select
+            className="table-filter-select"
+            value={filterResubmit}
+            onChange={(e) => { setFilterResubmit(e.target.value); setPage(1); }}
+          >
+            <option value="ALL">All Submissions</option>
+            <option value="NO">First Submissions</option>
+            <option value="YES">Resubmissions</option>
+          </select>
         </div>
 
         <p className="table-count">
@@ -166,6 +183,7 @@ export function SubmissionsTable({
           <thead>
             <tr>
               <th className="th-numeric">#</th>
+              <th>Type</th>
               <th
                 className="th-sortable"
                 onClick={() => toggleSort("studentId")}
@@ -209,7 +227,7 @@ export function SubmissionsTable({
           <tbody>
             {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={9} className="table-empty">
+                <td colSpan={10} className="table-empty">
                   No submissions found.
                 </td>
               </tr>
@@ -217,6 +235,13 @@ export function SubmissionsTable({
               pageRows.map((s, idx) => (
                 <tr key={s.id} className="sub-row">
                   <td className="row-number-cell">{startIdx + idx + 1}</td>
+                  <td>
+                    {s.isResubmit ? (
+                      <span className="resubmit-badge">Resubmit</span>
+                    ) : (
+                      <span className="submit-badge">First</span>
+                    )}
+                  </td>
                   <td>
                     <code className="student-id-cell">{s.studentId}</code>
                   </td>

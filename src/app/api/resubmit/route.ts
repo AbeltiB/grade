@@ -177,6 +177,7 @@ export async function POST(req: NextRequest) {
             filePublicId,
             fileName,
             ipAddress,
+            isResubmit: true,
           },
         });
       } else {
@@ -194,6 +195,7 @@ export async function POST(req: NextRequest) {
             filePublicId,
             fileName,
             ipAddress,
+            isResubmit: true,
           },
         });
       }

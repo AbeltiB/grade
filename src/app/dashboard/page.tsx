@@ -3,7 +3,7 @@ import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { SubmissionsTable } from "@/components/dashboard/Submissionstable";
 import { LogoutButton } from "@/components/dashboard/LogoutButton";
-import { GraduationCap, Users, FileCheck } from "lucide-react";
+import { GraduationCap, Users, FileCheck, RotateCcw } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +29,7 @@ export default async function DashboardPage() {
       fileName:      true,
       zipUrl:        true,
       ipAddress:     true,
+      isResubmit:    true,
       createdAt:     true,
     },
   });
@@ -36,6 +37,7 @@ export default async function DashboardPage() {
   const totalStudents = new Set(submissions.map((s) => s.studentId)).size;
   const kibromCount   = submissions.filter((s) => s.instructorKey === "KIBROM").length;
   const zelalemCount  = submissions.filter((s) => s.instructorKey === "ZELALEM").length;
+  const resubmitCount = submissions.filter((s) => s.isResubmit).length;
 
   return (
     <main className="dash-root">
@@ -97,6 +99,15 @@ export default async function DashboardPage() {
             <div>
               <p className="dash-stat-value">{zelalemCount}</p>
               <p className="dash-stat-label">Mr. Zelalem</p>
+            </div>
+          </div>
+          <div className="dash-stat">
+            <div className="dash-stat-icon dash-stat-icon--resubmit">
+              <RotateCcw size={18} />
+            </div>
+            <div>
+              <p className="dash-stat-value">{resubmitCount}</p>
+              <p className="dash-stat-label">Resubmissions</p>
             </div>
           </div>
         </div>

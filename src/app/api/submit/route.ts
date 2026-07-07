@@ -244,6 +244,7 @@ export async function POST(req: NextRequest) {
           filePublicId,
           fileName,
           ipAddress,
+          isResubmit: false,
         },
       });
       console.log(`[submit:${requestId}] db record created`);
