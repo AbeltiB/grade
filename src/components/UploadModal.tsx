@@ -54,6 +54,7 @@ interface CloudinarySignature {
   apiKey:    string;
   cloudName: string;
   folder:    string;
+  publicId:  string;
 }
 
 function sanitizeId(value: string, maxLen: number): string {
@@ -211,7 +212,7 @@ export function UploadModal({
       body.append("signature",     signature.signature);
       body.append("resource_type", "raw");
       body.append("folder",        signature.folder);
-      body.append("public_id",     file.name.replace(/\.zip$/i, ""));
+      body.append("public_id",     signature.publicId);
       body.append("use_filename",  "true");
       body.append("unique_filename", "true");
 

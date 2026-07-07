@@ -19,6 +19,7 @@ export interface CloudinarySignature {
   apiKey:    string;
   cloudName: string;
   folder:    string;
+  publicId:  string;
 }
 
 function buildFolder(
@@ -72,6 +73,16 @@ export async function uploadZip(
  * directly to Cloudinary. This avoids shipping large files through the
  * Next.js server and sidesteps platform body-size limits.
  */
+function sanitizePublicId(name: string): string {
+  return name
+    .replace(/\.zip$/i, "")
+    .normalize("NFKD")
+    .replace(/[^a-zA-Z0-9-_]+/g, "_") // whitelist only
+    .replace(/_+/g, "_")
+    .replace(/^_|_$/g, "")
+    .slice(0, 100); // Cloudinary public_id length sanity
+}
+
 export function getUploadSignature(
   originalName:  string,
   instructorKey: string,
@@ -79,13 +90,12 @@ export function getUploadSignature(
   studentId:     string
 ): CloudinarySignature {
   const folder    = buildFolder(instructorKey, assignmentKey, studentId);
-  const publicId  = originalName.replace(/\.zip$/i, "");
+  const publicId  = sanitizePublicId(originalName);
   const timestamp = Math.round(Date.now() / 1000);
 
   const paramsToSign: Record<string, string> = {
     folder,
     public_id: publicId,
-    resource_type: "raw",
     timestamp: String(timestamp),
     unique_filename: "true",
     use_filename: "true",
@@ -102,6 +112,7 @@ export function getUploadSignature(
     apiKey:    process.env.CLOUDINARY_API_KEY!,
     cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
     folder,
+    publicId
   };
 }
 
