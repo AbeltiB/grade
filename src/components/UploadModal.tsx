@@ -442,7 +442,7 @@ export function UploadModal({
                 <label className="field-label" htmlFor="phone">
                   Phone Number <span className="field-required">*</span>{" "}
                   <span className="field-note">
-                    (In case your file is corrupted, your upload fails, or the AI pipeline fails to read your data)
+                    (In case your file is corrupted or your upload fails)
                   </span>
                 </label>
                 <input

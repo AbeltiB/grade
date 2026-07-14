@@ -10,7 +10,7 @@ export default function HomePage() {
       <div className="bg-blob bg-blob--3" aria-hidden="true" />
 
       <Link
-        href="/re/students?code=GRADE-RESUBMIT-2025"
+        href="/re/students"
         className="resubmit-corner-btn"
         aria-label="Resubmit assignment"
       >

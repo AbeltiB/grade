@@ -11,6 +11,7 @@ import {
   Cloud,
   Database,
   GraduationCap,
+  Lock,
 } from "lucide-react";
 import { INSTRUCTORS, ASSIGNMENTS_BY_INSTRUCTOR } from "@/lib/config";
 import { InstructorKey, AssignmentKey } from "@/generated/prisma/client";
@@ -29,6 +30,7 @@ interface CloudinarySignature {
   apiKey:    string;
   cloudName: string;
   folder:    string;
+  publicId:  string;
 }
 
 function sanitizeId(value: string, maxLen: number): string {
@@ -61,6 +63,8 @@ function ResubmitForm() {
 
   const [authorized, setAuthorized] = useState(false);
   const [checkingCode, setCheckingCode] = useState(true);
+  const [codeInput, setCodeInput] = useState(code);
+  const [codeError, setCodeError] = useState<string | null>(null);
 
   const [studentId,    setStudentId]    = useState("");
   const [batch,        setBatch]        = useState("");
@@ -78,19 +82,26 @@ function ResubmitForm() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Validate the resubmission code on mount.
+  // Validate the resubmission code on mount (when provided via query string).
   useEffect(() => {
-    async function checkCode() {
+    async function checkCode(value: string) {
+      if (!value.trim()) {
+        setAuthorized(false);
+        setCheckingCode(false);
+        return;
+      }
       try {
-        const res = await fetch(`/api/resubmit-code?code=${encodeURIComponent(code)}`);
+        const res = await fetch(`/api/resubmit-code?code=${encodeURIComponent(value)}`);
         setAuthorized(res.ok);
+        if (!res.ok) setCodeError("Invalid resubmission code.");
       } catch {
         setAuthorized(false);
+        setCodeError("Could not verify the code. Please try again.");
       } finally {
         setCheckingCode(false);
       }
     }
-    checkCode();
+    checkCode(code);
   }, [code]);
 
   const availableAssignments = ASSIGNMENTS_BY_INSTRUCTOR[instructorKey];
@@ -115,6 +126,28 @@ function ResubmitForm() {
     }
     setFile(selected);
     setError(null);
+  }
+
+  async function handleVerifyCode(value: string) {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      setCodeError("Please enter the resubmission code.");
+      return;
+    }
+    setCheckingCode(true);
+    setCodeError(null);
+    try {
+      const res = await fetch(`/api/resubmit-code?code=${encodeURIComponent(trimmed)}`);
+      if (res.ok) {
+        setAuthorized(true);
+      } else {
+        setCodeError("Invalid resubmission code.");
+      }
+    } catch {
+      setCodeError("Could not verify the code. Please try again.");
+    } finally {
+      setCheckingCode(false);
+    }
   }
 
   async function getSignature(): Promise<CloudinarySignature> {
@@ -191,7 +224,7 @@ function ResubmitForm() {
       body.append("signature", signature.signature);
       body.append("resource_type", "raw");
       body.append("folder", signature.folder);
-      body.append("public_id", file.name.replace(/\.zip$/i, ""));
+      body.append("public_id", signature.publicId);
       body.append("use_filename", "true");
       body.append("unique_filename", "true");
 
@@ -295,14 +328,67 @@ function ResubmitForm() {
   if (!authorized) {
     return (
       <main className="portal-root">
-        <div className="portal-container" style={{ textAlign: "center", paddingTop: "80px" }}>
-          <div className="form-error" style={{ justifyContent: "center" }}>
-            <AlertCircle size={18} />
-            <span>Invalid or missing resubmission link.</span>
+        <div className="bg-blob bg-blob--1" aria-hidden="true" />
+        <div className="bg-blob bg-blob--2" aria-hidden="true" />
+
+        <div className="portal-container" style={{ maxWidth: "480px" }}>
+          <div className="hero-icon-wrap">
+            <GraduationCap size={36} strokeWidth={1.5} />
           </div>
-          <p className="hero-sub" style={{ marginTop: "16px" }}>
-            Please use the exact link shared by your instructor.
+          <h1 className="hero-heading">Student Resubmission</h1>
+          <p className="hero-sub">
+            Enter the resubmission code shared by your instructor to continue.
           </p>
+
+          <div className="modal-panel" style={{ marginTop: "32px", padding: "28px" }}>
+            <div className="form-field">
+              <label className="field-label" htmlFor="resubmit-code">
+                Resubmission Code <span className="field-required">*</span>
+              </label>
+              <input
+                id="resubmit-code"
+                className="field-input"
+                type="text"
+                placeholder="Enter code"
+                value={codeInput}
+                onChange={(e) => {
+                  setCodeInput(e.target.value);
+                  setCodeError(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleVerifyCode(codeInput);
+                }}
+                disabled={checkingCode}
+                autoComplete="off"
+              />
+            </div>
+
+            {codeError && (
+              <div className="form-error" role="alert" style={{ marginTop: "14px" }}>
+                <AlertCircle size={16} />
+                <span>{codeError}</span>
+              </div>
+            )}
+
+            <button
+              className="btn-primary"
+              style={{ width: "100%", justifyContent: "center", marginTop: "18px" }}
+              onClick={() => handleVerifyCode(codeInput)}
+              disabled={checkingCode || !codeInput.trim()}
+            >
+              {checkingCode ? (
+                <>
+                  <Loader2 size={16} className="spin" />
+                  Verifying…
+                </>
+              ) : (
+                <>
+                  <Lock size={16} />
+                  Verify Code
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </main>
     );

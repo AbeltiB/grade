@@ -5,8 +5,23 @@ export interface SessionData {
   isAuthenticated: boolean;
 }
 
+function getSessionSecret(): string {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) {
+    throw new Error(
+      "SESSION_SECRET is not set. It must be at least 32 characters long."
+    );
+  }
+  if (secret.length < 32) {
+    throw new Error(
+      "SESSION_SECRET must be at least 32 characters long."
+    );
+  }
+  return secret;
+}
+
 export const sessionOptions: SessionOptions = {
-  password: process.env.SESSION_SECRET!,   // min 32-char secret
+  password: getSessionSecret(),
   cookieName: "grade_dash_session",
   cookieOptions: {
     secure:   process.env.NODE_ENV === "production",
